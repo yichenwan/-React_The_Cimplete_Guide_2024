@@ -12,6 +12,16 @@ function App() {
   const selectedPlace = useRef();
   const [avaliablePlaces, setAvaliablePlaces] = useState([]);
   const [pickedPlaces, setPickedPlaces] = useState([]);
+  console.log(localStorage.getItem('selectedPlaces'));
+  useEffect(() => {
+    const storedIds = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
+
+    const storedPlaces = storedIds.map(id =>
+       AVAILABLE_PLACES.find((place) => place.id === id)
+      );
+
+      setPickedPlaces(storedPlaces);
+    }, []);
 
   useEffect(()=>{
     navigator.geolocation.getCurrentPosition((position) => {
@@ -37,6 +47,11 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    const storedIds = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
+    if (storedIds.indexOf(id) === -1) {
+      localStorage.setItem('selectedPlaces', JSON.stringify([id, ...storedIds]));
+    } 
   }
 
   function handleRemovePlace() {
@@ -44,6 +59,8 @@ function App() {
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
     modal.current.close();
+    const storedIds = JSON.parse(localStortage.getItem('selectedPlaces')) || [];
+    localStorage.setItem('selectedPlaces', JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current)));
   }
 
   return (
