@@ -5,7 +5,7 @@ import Modal from './components/Modal.jsx';
 import DeleteConfirmation from './components/DeleteConfirmation.jsx';
 import logoImg from './assets/logo.png';
 import AvailablePlaces from './components/AvailablePlaces.jsx';
-import  { updateUserPlaes } from './http.js';
+import  { updateUserPlaces } from './http.js';
 import Error from './components/Error.jsx';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
   }
 
   async function handleSelectPlace(selectedPlace) {
-    // await updateUserPlaes([selectedPlace, ...userPlaces]);
+    // await updateUserPlaces([selectedPlace, ...userPlaces]);
 
     setUserPlaces((prevPickedPlaces) => {
       if (!prevPickedPlaces) {
@@ -37,7 +37,7 @@ function App() {
       return [selectedPlace, ...prevPickedPlaces];
     });
     try {
-      await updateUserPlaes([selectedPlace, ...userPlaces]);
+      await updateUserPlaces([selectedPlace, ...userPlaces]);
     } catch (error) {
       setUserPlaces(userPlaces);
       setErrorUpdatingPlaces({message: error.message || 'Failed to update places.'})
@@ -48,9 +48,17 @@ function App() {
     setUserPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current.id)
     );
-
+    try {
+      await updateUserPlaces(userPlaces.filter((place) => place.id !== selectedPlace.current.id));
+    }
+    catch (error) {
+      setUserPlaces(userPlaces);
+      setErrorUpdatingPlaces({
+        message: error.message || 'Failed to delete place.'
+      })
+    }
     setModalIsOpen(false);
-  }, []);
+  }, [userPlaces]);
 
   function handleError() {
     setErrorUpdatingPlaces(null);
